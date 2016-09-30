@@ -1,0 +1,131 @@
+\documentclass{beamer}
+%
+% Choose how your presentation looks.
+%
+% For more themes, color themes and font themes, see:
+% http://deic.uab.es/~iblanes/beamer_gallery/index_by_theme.html
+%
+\mode<presentation>
+{
+  \usetheme{default}      % or try Darmstadt, Madrid, Warsaw, ...
+  \usecolortheme{default} % or try albatross, beaver, crane, ...
+  \usefonttheme{default}  % or try serif, structurebold, ...
+  \setbeamertemplate{navigation symbols}{}
+  \setbeamertemplate{caption}[numbered]
+} 
+
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{multimedia}
+\usepackage{media9}
+%\usepackage[dvipdfmx]{media9} % only for latex->dvipdfmx
+\usepackage{hyperref}
+
+\title[CoEvAlgos!]{Co-evolutionary algorithms}
+\author{Abhishek \& Suhas}
+\institute{Purdue University}
+\date{2016 October 3rd}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% Uncomment these lines for an automatically generated outline.
+\begin{frame}{Outline}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+
+\begin{frame}{Introduction}
+
+\begin{itemize}
+  \item Your introduction goes here!
+  \item Use \texttt{itemize} to organize your main points.
+\end{itemize}
+
+\vskip 1cm
+
+\begin{block}{Examples}
+Some examples of commonly used commands and features are included, to help you get started.
+\end{block}
+
+\end{frame}
+
+\section{Some \LaTeX{} Examples}
+
+\subsection{Tables and Figures}
+
+\begin{frame}{Tables and Figures}
+
+\begin{itemize}
+\item Use \texttt{tabular} for basic tables --- see Table~\ref{tab:widgets}, for example.
+\item You can upload a figure (JPEG, PNG or PDF) using the files menu. 
+\item To include it in your document, use the \texttt{includegraphics} command (see the comment below in the source code).
+\end{itemize}
+
+% Commands to include a figure:
+%\begin{figure}
+%\includegraphics[width=\textwidth]{your-figure's-file-name}
+%\caption{\label{fig:your-figure}Caption goes here.}
+%\end{figure}
+
+\begin{table}
+\centering
+\begin{tabular}{l|r}
+Item & Quantity \\\hline
+Widgets & 42 \\
+Gadgets & 13
+\end{tabular}
+\caption{\label{tab:widgets}An example table.}
+\end{table}
+
+\end{frame}
+
+\subsection{Mathematics}
+
+\begin{frame}{Readable Mathematics}
+
+Let $X_1, X_2, \ldots, X_n$ be a sequence of independent and identically distributed random variables with $\text{E}[X_i] = \mu$ and $\text{Var}[X_i] = \sigma^2 < \infty$, and let
+$$S_n = \frac{X_1 + X_2 + \cdots + X_n}{n}
+      = \frac{1}{n}\sum_{i}^{n} X_i$$
+denote their mean. Then as $n$ approaches infinity, the random variables $\sqrt{n}(S_n - \mu)$ converge in distribution to a normal $\mathcal{N}(0, \sigma^2)$.
+\end{frame}
+\begin{frame}{Iterated Prisoner's Dilemma - A walkthrough}
+\end{frame}
+\begin{frame}{Iterated Prisoner's Dilemma - A walkthrough}
+\end{frame}
+
+\begin{frame}{Strategies that evolved}
+\end{frame}
+
+\begin{frame}{Predator-Prey evolution}
+\end{frame}
+
+\begin{frame}{Rock-Paper-Scissors stalemate}
+    \movie[width=4cm,height=3cm,poster,showcontrols]{WOlolo}{Visualizing.mp4}
+They will go on to explore entire genetic space without reaching stability.
+\end{frame}
+\begin{frame}
+    \includemedia[width=200pt,height=150pt]{Wololo}{Visualizing.mp4}
+    Source: \href{https://www.youtube.com/watch?v=4pdiAneMMhU}{Using fitness landscapes to visualize evolution in action by Randy Olson}
+
+\end{frame}
+
+\begin{frame}{Notes}
+\begin{itemize}
+\item In recent years, evolutionary models have been used to assist decision making in applied settings and find solutions to problems such as optimal product design and service portfolio diversification.
+Source:  Baltas, G., Tsafarakis, S., Saridakis, C.  Matsatsinis, N. (2013). Biologically Inspired Approaches to Strategic Service Design: Optimal Service Diversification Through Evolutionary and Swarm Intelligence Models. Journal of Service Research 16 (2), 186-201
+
+\item unfair ZD strategies are not evolutionarily stable. The key intuition is that an evolutionarily stable strategy must not only be able to invade another population (which extortionary ZD strategies can do) but must also perform well against other players of the same type (which extortionary ZD players do poorly, because they reduce each other's surplus)
+Source:Adami, Christoph; Arend Hintze (2013). "Evolutionary instability of Zero Determinant strategies demonstrates that winning isn't everything": 3. arXiv:1208.2666free to read.
+
+\item Le and Boyd[17] found that in such situations, cooperation is much harder to evolve than in the discrete iterated prisoner's dilemma. The basic intuition for this result is straightforward: in a continuous prisoner's dilemma, if a population starts off in a non-cooperative equilibrium, players who are only marginally more cooperative than non-cooperators get little benefit from assorting with one another. By contrast, in a discrete prisoner's dilemma, tit for tat cooperators get a big payoff boost from assorting with one another in a non-cooperative equilibrium, relative to non-cooperators. Since nature arguably offers more opportunities for variable cooperation rather than a strict dichotomy of cooperation or defection, the continuous prisoner's dilemma may help explain why real-life examples of tit for tat-like cooperation are extremely rare in nature (ex. Hammerstein[18]) even though tit for tat seems robust in theoretical models.
+Le S, Boyd R (2007). "Evolutionary Dynamics of the Continuous Iterated Prisoner's Dilemma". Journal of Theoretical Biology. 245 (2): 258–267. doi:10.1016/j.jtbi.2006.09.016. PMID 17125798. 
+
+\end{itemize}
+\end{frame}
+
+\end{document}
