@@ -9,9 +9,18 @@ class Agent {
         vector<int> strategy;
         //TODO history, continuous decision space
         vector<int> score;
+        vector<int> history;
+        Agent* leftNeighbor;
+        Agent* rightNeighbor;
         Agent() {
             this->strategy = vector<int>{1};
+            history = vector<int>(0);
             //cerr<<this->strategy[0];
+        }
+        int getDecision() {
+            int decision = strategy[0];
+            history.push_back(decision);
+            return decision;
         }
 };
 
@@ -67,11 +76,11 @@ class IPD {
             for(int round=0;round<nIterations;round++) {
                 for(int i=0;i<nAgents;i++) {
                     if(i==0)
-                        agents[i].score.push_back(score(agents[nAgents-1].strategy[0],agents[i].strategy[i],agents[i+1].strategy[0])); 
+                        agents[i].score.push_back(score(agents[nAgents-1].getDecision(),agents[i].strategy[i],agents[i+1].getDecision())); 
                     else if(i==nAgents-1)
-                        agents[i].score.push_back(score(agents[i-1].strategy[0],agents[i].strategy[0],agents[0].strategy[0])); 
+                        agents[i].score.push_back(score(agents[i-1].getDecision(),agents[i].getDecision(),agents[0].getDecision())); 
                     else
-                        agents[i].score.push_back(score(agents[i-1].strategy[0],agents[i].strategy[0],agents[i+1].strategy[0])); 
+                        agents[i].score.push_back(score(agents[i-1].getDecision(),agents[i].getDecision(),agents[i+1].getDecision())); 
                     totalScore += agents[i].score[round];
                 }
             }
@@ -90,7 +99,7 @@ class IPD {
             }
         }
         void printGlobalScore() {
-            cout<<"Total Score: "<<totalScore<<endl;
+            cout<<"Average Score: "<<averageScore<<endl;
         }
 };
 
