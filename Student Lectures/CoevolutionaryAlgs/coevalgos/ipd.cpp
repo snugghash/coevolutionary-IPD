@@ -1,6 +1,9 @@
 #include<iostream>
 #include<algorithm>
 #include<vector>
+#include<cmath>
+#include<cstdlib>
+#include<random>
 
 using namespace std;
 
@@ -13,9 +16,11 @@ class Agent {
         Agent* leftNeighbor;
         Agent* rightNeighbor;
         Agent() {
-            this->strategy = vector<int>{1};
+            //default_random_engine generator;
+            //uniform_int_distribution<int> distribution(0,1);
+            this->strategy = vector<int>{rand()%2};
             history = vector<int>(0);
-            //cerr<<this->strategy[0];
+            //cerr<<this->strategy[0]<<"isStrat";
         }
         int getDecision() {
             int decision = strategy[0];
@@ -121,12 +126,13 @@ void selectBestPopulation() {
 }
 
 int main() {
+    srand(time(NULL));
     int nAgents = 2;
     vector<Agent> agents(nAgents);
     /*for(int i=0;i<nAgents;i++) {
         agents.push_back(new Agent());
     }*/
-    IPD ipd(2,1,1,agents);
+    IPD ipd(nAgents,1,100,agents);
     ipd.runIPD();
     ipd.printAgentScores();
     ipd.printGlobalScore();
