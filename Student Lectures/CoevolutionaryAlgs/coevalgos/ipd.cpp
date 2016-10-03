@@ -8,18 +8,22 @@
 using namespace std;
 
 //TODO continuous decision space, history, copy constructor issue on populationSize passing
-int populationSize = 1;
+int populationSize = 10;
+int totalGenerations = 100;
+int nIterations = 100;
+int nAgents = 10;
 class Agent {
     public:
         vector<int> strategy;
         vector<int> score;
+        vector<int> totalScoreOfIndividual;
         vector<int> history;
         //int populationSize;
 
         vector<int> connectionLeft;
         vector<int> connectionRight;
-        Agent* leftNeighbor;
-        Agent* rightNeighbor;
+        //Agent* leftNeighbor;
+        //Agent* rightNeighbor;
 
         Agent() {
             this->strategy = vector<int>(0);
@@ -28,18 +32,21 @@ class Agent {
                 connectionLeft.push_back(rand()%populationSize);
                 connectionRight.push_back(rand()%populationSize);
             }
-            history = vector<int>(0);
+            history = vector<int>(populationSize);
+            totalScoreOfIndividual = vector<int>(populationSize);
+            score = vector<int>(nIterations);
             //cerr<<this->strategy[0]<<"isStrat";
         }
         int getDecision(int sampleIndividual) {
             int decision = strategy[sampleIndividual];
-            history.push_back(decision);
+            //TODO proper history for all individuals
+            history[sampleIndividual] = decision;
             return decision;
         }
 };
 
 // Scoring as decribed in the paper
-int score(int decision1, int decision2, int decision3) {
+int score2(int decision1, int decision2, int decision3) {
     //cerr<<decision1<<decision2<<decision3<<"Wololo";
     if(decision1 && decision2 && decision3 == 1)
         return 70;
@@ -52,7 +59,7 @@ int score(int decision1, int decision2, int decision3) {
 }
 
 // Scoring which has no temptation to defect
-int score2(int decision1, int decision2, int decision3) {
+int score(int decision1, int decision2, int decision3) {
     if(decision1 && decision2 && decision3 == 1)
         return 70;
     else if(decision1 || decision2 || decision3 == 0)
@@ -68,16 +75,16 @@ class IPD {
         //Number of agents
         int nAgents;
         //Number of strategies per agent/population size
-        int nStrategiesPerAgent;
+        int populationSize;
         //Number of iterations
         int nIterations;
         //Agents
         vector<Agent> agents;
         //Score per run of IPD
-        int totalScore;
-        int averageScore;
+        long long totalScore;
+        long long averageScore;
 
-        IPD(int nAgents, int nStrategiesPerAgent, int nIterations, vector<Agent> agents) : nAgents(nAgents), nStrategiesPerAgent(nStrategiesPerAgent), nIterations(nIterations), agents(agents) {
+        IPD(int nAgents, int populationSize, int nIterations, vector<Agent> agents) : nAgents(nAgents), populationSize(populationSize), nIterations(nIterations), agents(agents) {
             totalScore = 0;
             averageScore = 0;
         }
@@ -86,19 +93,34 @@ class IPD {
          * Run the iterated prisoner's dilemma with the specified parameters
          */
         void runIPD() {
-            for(int sampleIndividual=0;sampleIndividual<nStrategiesPerAgent;sampleIndividual++) {
-                for(int round=0;round<nIterations;round++) {
-                    for(int i=0;i<nAgents;i++) {
-                        if(i==0)
-                            agents[i].score.push_back(score(agents[nAgents-1].getDecision(sampleIndividual),agents[i].getDecision(sampleIndividual),agents[i+1].getDecision(sampleIndividual))); 
-                        else if(i==nAgents-1)
-                            agents[i].score.push_back(score(agents[i-1].getDecision(sampleIndividual),agents[i].getDecision(sampleIndividual),agents[0].getDecision(sampleIndividual))); 
-                        else
-                            agents[i].score.push_back(score(agents[i-1].getDecision(sampleIndividual),agents[i].getDecision(sampleIndividual),agents[i+1].getDecision(sampleIndividual))); 
-                        totalScore += agents[i].score[round];
-                    }
+            for(int generationCount=0;generationCount<totalGenerations;generationCount++) {
+                averageScore = 0;
+                cout<<"Generation "<<generationCount<<" starting"<<endl;
+                for(int i=0;i<nAgents;i++) {
+                    agents[i].totalScoreOfIndividual = vector<int>(populationSize);
                 }
-                averageScore = totalScore/nAgents;
+                totalScore = 0;
+                for(int sampleIndividual=0;sampleIndividual<populationSize;sampleIndividual++) {
+                    //cerr<<"Running IPD for individual "<<sampleIndividual<<endl;
+                    for(int round=0;round<nIterations;round++) {
+                        //cerr<<"Running IPD for round "<<round<<endl;
+                        for(int i=0;i<nAgents;i++) {
+                            //cerr<<"Running IPD for agent "<<i<<endl;
+                            if(i==0)
+                                agents[i].score[round] = score(agents[nAgents-1].getDecision(agents[i].connectionLeft[sampleIndividual]),agents[i].getDecision(sampleIndividual),agents[i+1].getDecision(agents[i].connectionRight[sampleIndividual])); 
+                            else if(i==nAgents-1)
+                                agents[i].score[round] = score(agents[i-1].getDecision(agents[i].connectionLeft[sampleIndividual]),agents[i].getDecision(sampleIndividual),agents[0].getDecision(agents[i].connectionRight[sampleIndividual])); 
+                            else
+                                agents[i].score[round] = score(agents[i-1].getDecision(agents[i].connectionLeft[sampleIndividual]),agents[i].getDecision(sampleIndividual),agents[i+1].getDecision(agents[i].connectionRight[sampleIndividual])); 
+                            totalScore += agents[i].score[round];
+                            agents[i].totalScoreOfIndividual[sampleIndividual] += agents[i].score[round];
+                        }
+                    }
+                    averageScore += totalScore/nAgents;
+                }
+                averageScore /= populationSize;
+                produceNewGeneration(agents);
+                cout<<"Generation "<<generationCount<<" done"<<endl;
             }
         }
 
@@ -115,6 +137,42 @@ class IPD {
         void printGlobalScore() {
             cout<<"Average Score: "<<averageScore<<endl;
         }
+        ///TODO Mutation, uniqueness of connections, selection count
+        void produceNewGeneration(vector<Agent> a) {
+            for(int i=0;i<nAgents;i++) {
+                //cerr<<"Selecting population for agent "<<i<<endl;
+                vector<int> selector(populationSize);
+                vector<int> successful_individuals;
+                int sum = 0;
+                for(int j=0;j<populationSize;j++)
+                    sum+=a[i].totalScoreOfIndividual[j];
+                if(sum)
+                    for(int selectionCount=0;selectionCount<populationSize/2;selectionCount++) {
+                        int fitness_selector = rand()%sum;
+                        int j=0;
+                        while(fitness_selector>0) {
+                            fitness_selector -= a[i].totalScoreOfIndividual[j];
+                            j++;
+                        }
+                        selector[j-1] = 1;
+                        successful_individuals.push_back(j-1);
+                    }
+                int countCopiedSuccessfulIndividials = 0;
+                for(int j=0;j<populationSize;j++) {
+                    if(!selector[j]) {
+                        if(sum) {
+                            agents[i].strategy[j] = agents[i].strategy[successful_individuals[countCopiedSuccessfulIndividials]];
+                            countCopiedSuccessfulIndividials++;
+                            if(countCopiedSuccessfulIndividials>=successful_individuals.size())
+                                countCopiedSuccessfulIndividials = rand()%successful_individuals.size();
+                        }
+                        else agents[i].strategy[j] = rand()%2;
+                        agents[i].connectionLeft[j] = rand()%populationSize;
+                        agents[i].connectionRight[j] = rand()%populationSize;
+                    }
+                }
+            }
+        }
 };
 
 
@@ -124,10 +182,6 @@ class ringIPD: public IPD {
         ;
 };
 
-///TODO
-void produceNewGeneration() {
-    ;
-}
 
 //TODO
 void selectBestPopulation() {
@@ -136,16 +190,14 @@ void selectBestPopulation() {
 
 int main() {
     srand(time(NULL));
-    int nAgents = 2;
-    int populationSize = 1;
     vector<Agent> agents(0);
     for(int i=0;i<nAgents;i++) {
         Agent a;
         agents.push_back(a);
     }
-    IPD ipd(nAgents,populationSize,100,agents);
+    IPD ipd(nAgents,populationSize,nIterations,agents);
     ipd.runIPD();
-    ipd.printAgentScores();
+    //ipd.printAgentScores();
     ipd.printGlobalScore();
     return 0;
 }
