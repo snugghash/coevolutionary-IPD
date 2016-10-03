@@ -7,23 +7,32 @@
 
 using namespace std;
 
+//TODO continuous decision space, history, copy constructor issue on populationSize passing
+int populationSize = 1;
 class Agent {
     public:
         vector<int> strategy;
-        //TODO history, continuous decision space
         vector<int> score;
         vector<int> history;
+        //int populationSize;
+
+        vector<int> connectionLeft;
+        vector<int> connectionRight;
         Agent* leftNeighbor;
         Agent* rightNeighbor;
+
         Agent() {
-            //default_random_engine generator;
-            //uniform_int_distribution<int> distribution(0,1);
-            this->strategy = vector<int>{rand()%2};
+            this->strategy = vector<int>(0);
+            for(int i=0;i<populationSize;i++) {
+                strategy.push_back(rand()%2);
+                connectionLeft.push_back(rand()%populationSize);
+                connectionRight.push_back(rand()%populationSize);
+            }
             history = vector<int>(0);
             //cerr<<this->strategy[0]<<"isStrat";
         }
-        int getDecision() {
-            int decision = strategy[0];
+        int getDecision(int sampleIndividual) {
+            int decision = strategy[sampleIndividual];
             history.push_back(decision);
             return decision;
         }
@@ -58,7 +67,7 @@ class IPD {
     public:
         //Number of agents
         int nAgents;
-        //Number of strategies per agent
+        //Number of strategies per agent/population size
         int nStrategiesPerAgent;
         //Number of iterations
         int nIterations;
@@ -77,20 +86,20 @@ class IPD {
          * Run the iterated prisoner's dilemma with the specified parameters
          */
         void runIPD() {
-
-            for(int round=0;round<nIterations;round++) {
-                for(int i=0;i<nAgents;i++) {
-                    if(i==0)
-                        agents[i].score.push_back(score(agents[nAgents-1].getDecision(),agents[i].strategy[i],agents[i+1].getDecision())); 
-                    else if(i==nAgents-1)
-                        agents[i].score.push_back(score(agents[i-1].getDecision(),agents[i].getDecision(),agents[0].getDecision())); 
-                    else
-                        agents[i].score.push_back(score(agents[i-1].getDecision(),agents[i].getDecision(),agents[i+1].getDecision())); 
-                    totalScore += agents[i].score[round];
+            for(int sampleIndividual=0;sampleIndividual<nStrategiesPerAgent;sampleIndividual++) {
+                for(int round=0;round<nIterations;round++) {
+                    for(int i=0;i<nAgents;i++) {
+                        if(i==0)
+                            agents[i].score.push_back(score(agents[nAgents-1].getDecision(sampleIndividual),agents[i].getDecision(sampleIndividual),agents[i+1].getDecision(sampleIndividual))); 
+                        else if(i==nAgents-1)
+                            agents[i].score.push_back(score(agents[i-1].getDecision(sampleIndividual),agents[i].getDecision(sampleIndividual),agents[0].getDecision(sampleIndividual))); 
+                        else
+                            agents[i].score.push_back(score(agents[i-1].getDecision(sampleIndividual),agents[i].getDecision(sampleIndividual),agents[i+1].getDecision(sampleIndividual))); 
+                        totalScore += agents[i].score[round];
+                    }
                 }
+                averageScore = totalScore/nAgents;
             }
-            averageScore = totalScore/nAgents;
-
         }
 
 
@@ -128,11 +137,13 @@ void selectBestPopulation() {
 int main() {
     srand(time(NULL));
     int nAgents = 2;
-    vector<Agent> agents(nAgents);
-    /*for(int i=0;i<nAgents;i++) {
-        agents.push_back(new Agent());
-    }*/
-    IPD ipd(nAgents,1,100,agents);
+    int populationSize = 1;
+    vector<Agent> agents(0);
+    for(int i=0;i<nAgents;i++) {
+        Agent a;
+        agents.push_back(a);
+    }
+    IPD ipd(nAgents,populationSize,100,agents);
     ipd.runIPD();
     ipd.printAgentScores();
     ipd.printGlobalScore();
