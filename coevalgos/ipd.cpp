@@ -95,7 +95,7 @@ class IPD {
         void runIPD() {
             for(int generationCount=0;generationCount<totalGenerations;generationCount++) {
                 averageScore = 0;
-                cout<<"Generation "<<generationCount<<" starting"<<endl;
+                //cerr<<"Generation "<<generationCount<<" starting"<<endl;
                 for(int i=0;i<nAgents;i++) {
                     agents[i].totalScoreOfIndividual = vector<int>(populationSize);
                 }
@@ -116,11 +116,12 @@ class IPD {
                             agents[i].totalScoreOfIndividual[sampleIndividual] += agents[i].score[round];
                         }
                     }
-                    averageScore += totalScore/nAgents;
+                    averageScore += totalScore;
                 }
-                averageScore /= populationSize;
+                averageScore = averageScore/populationSize/nAgents;
+                cout<<"Generation "<<generationCount<<" average score = "<<averageScore<<endl;
                 produceNewGeneration(agents);
-                cout<<"Generation "<<generationCount<<" done"<<endl;
+                //cout<<"Generation "<<generationCount<<" done"<<endl;
             }
         }
 
@@ -135,7 +136,7 @@ class IPD {
             }
         }
         void printGlobalScore() {
-            cout<<"Average Score: "<<averageScore<<endl;
+            cout<<"Average Score per agent individual: "<<averageScore<<endl;
         }
         ///TODO Mutation, uniqueness of connections, selection count
         void produceNewGeneration(vector<Agent> a) {
@@ -160,7 +161,7 @@ class IPD {
                 int countCopiedSuccessfulIndividials = 0;
                 for(int j=0;j<populationSize;j++) {
                     if(!selector[j]) {
-                        if(sum) {
+                        if(sum && successful_individuals.size()>0) {
                             agents[i].strategy[j] = agents[i].strategy[successful_individuals[countCopiedSuccessfulIndividials]];
                             countCopiedSuccessfulIndividials++;
                             if(countCopiedSuccessfulIndividials>=successful_individuals.size())
